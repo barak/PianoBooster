@@ -99,6 +99,7 @@ QtWindow::QtWindow()
     mainLayout->addLayout(columnLayout);
 
     m_song->init(m_score, m_settings);
+    m_glWidget->init();
 
     m_sidePanel->init(m_song, m_song->getTrackList(), m_topBar);
     m_topBar->init(m_song, m_song->getTrackList());

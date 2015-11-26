@@ -1,10 +1,6 @@
-#define PB_VERSION "0.6.4b"
+#define PB_VERSION "0.6.4"
 
 /*
-v0.6.4b: (2 May 2010)
-- Fixed Segfault in Pianobooster 0.6.4 (karmic racb) on lucid lynx ubuntu
-
-
 v0.6.4: (28 November 2009)
 - Added note names for beginners (to be used with a piano note name cut-out.)
 - Added assignable left and right midi channels.
