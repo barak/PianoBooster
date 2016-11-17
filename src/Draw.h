@@ -43,9 +43,9 @@
 
 #include "Symbol.h"
 
-#define REDRAW_COUNT 1 // there are two gl buffers but redrawing once is best (set 2 with buggy gl drivers)
 
 class CSettings;
+class CSlot;
 
 class CScrollProperties
 {
@@ -80,8 +80,10 @@ public:
             glVertex2f (y,x);
     }
 
-    void drawSymbol(CSymbol symbol, float x, float y);
+    void drawSymbol(CSymbol symbol, float x, float y, CSlot* slot = 0);
     void drawSymbol(CSymbol symbol, float x);
+    void drawSlot(CSlot* slot);
+
     static void setDisplayHand(whichPart_t hand)
     {
         m_displayHand = hand;
@@ -103,6 +105,7 @@ protected:
 
 private:
     void drawStaveNoteName(CSymbol symbol, float x, float y);
+    bool drawNote(CSymbol* symbol, float x, float y, CSlot* slot, CColour colour, bool playable);
 
     void checkAccidental(CSymbol symbol, float x, float y);
     void drawStaveExtentsion(CSymbol symbol, float x, int noteWidth, bool playable);

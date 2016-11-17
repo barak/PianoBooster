@@ -57,6 +57,7 @@ public:
     }
 
     CSymbol getSymbol(int index) {return m_symbols[index];}
+    CSymbol* getSymbolPtr(int index) {return &m_symbols[index];}
     musicalSymbol_t getSymbolType(int index) {return m_symbols[index].getType();}
     int length() {return m_length;}
     void setDeltaTime(int delta) {m_deltaTime = delta;}
@@ -159,6 +160,17 @@ private:
     CNoteState* m_backLink;
 };
 
+enum {
+    NOTATE_demisemiquaverBoundary,       // Demisemiquaver / Thirty-second note
+    NOTATE_semiquaverBoundary,           // Semiquaver / Sixteenth note
+    NOTATE_quaverBoundary,               // Quaver / Eighth note
+    NOTATE_crotchetBoundary,             // Crotchet / Quarter note
+    NOTATE_minimBoundary,                // Minim / Half note
+    NOTATE_semibreveBoundary,            // Semibreve / Whole note
+    NOTATE_breveBoundary,                // Breve / Double whole note
+    NOTATE_MAX_PARAMS                   // == MUST BE LAST ===
+};
+
 // Define a chord
 class CNotation
 {
@@ -195,12 +207,15 @@ private:
     void findNoteSlots();
     CSlot nextNoteSlot();
     accidentalModifer_t detectSuppressedNatural(int note);
+    void setupNotationParamaters();
+
+    void calculateScoreNoteLength();
 
 
     CQueue<CSlot>* m_slotQueue;             // Queue of symbol slots that have not been read yet
     CQueue<CMidiEvent>* m_midiInputQueue;   // A Queue of midi events
     CSlot m_currentSlot;
-    int m_currentDeltaTime;
+    int m_currentDeltaTime;        // time difference between this and the previous slot
     int m_beatPerBarCounter;
     int m_earlyBarChangeCounter;
     int m_earlyBarChangeDelta; // Counts the ppqn in one bar
@@ -210,6 +225,7 @@ private:
     CBar m_bar;
     CNoteState m_noteState[MAX_MIDI_NOTES];
     static bool m_cfg_displayCourtesyAccidentals;
+    static int cfg_param[NOTATE_MAX_PARAMS];
 };
 
 #endif  // __NOTATION_H__

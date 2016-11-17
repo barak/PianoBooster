@@ -82,9 +82,6 @@
 
 
 
-#define MIDI_DRUM_CHANNEL       (10-1)
-#define MAX_MIDI_CHANNELS       16      // There are always at most 16 midi channels
-
 #define GM_PIANO_PATCH        0 // The default grand piano sound
 
 
@@ -107,6 +104,7 @@ public:
         m_channel = 0;
         m_note = 0;
         m_velocity = 0;
+        m_duration = 0;
     }
 
     int deltaTime(){return m_deltaTime;}
@@ -116,10 +114,12 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     //@brief returns the midi note number
     int note() const {return m_note;}
+    void setNote(int note){m_note = note;}
     int programme() const {return m_note;}
-    int channel() const {return m_channel;}
+    int channel() const {return m_channel;} // can also contain the track number
     void setChannel(int chan){m_channel = chan;}
     int velocity() const {return m_velocity;}
+    void setVelocity(int value) {m_velocity = value;}
     int type() const {return m_type;}
     void setType(int type){m_type = type;}
     void transpose(int amount) {m_note += amount;}
@@ -226,10 +226,27 @@ public:
         m_velocity = 0;
     }
 
-    void printDetails()
+    ////////////////////////////////////////////////////////////////////////////////
+    //@brief set the midi note duration
+    void setDuration(int duration) {m_duration = duration;}
+
+    ////////////////////////////////////////////////////////////////////////////////
+    //@brief how long the midi note was played for
+    long getDuration(){return m_duration;}
+
+
+    void printDetails() const
     {
-        ppTiming("chan %2d type %2X note %3d", channel(), type(), note() );
-    }
+        if (type() == MIDI_NOTE_ON) {
+            ppTiming("chan %2d NOTE ON  note %3d vel %3d", channel(), note(), velocity() );
+        }
+        else if (type() == MIDI_NOTE_OFF) {
+            ppTiming("chan %2d NOTE OFF note %3d vel %3d", channel(), note(), velocity() );
+        }
+        else {
+             ppTiming("chan %2d type %2X data1 %3d data2 %3d", channel(), type(), note(), velocity() );
+        }
+   }
 
 private:
     int m_type;
@@ -237,6 +254,7 @@ private:
     int m_channel;
     int m_note;
     int m_velocity;
+    int m_duration;
 };
 
 

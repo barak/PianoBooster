@@ -57,6 +57,8 @@ IF(${CMAKE_SYSTEM} MATCHES "Linux")
     #IF(ALSA_FOUND)
         ADD_DEFINITIONS(-D__LINUX_ALSASEQ__)
         LINK_LIBRARIES (asound)
+        LINK_LIBRARIES (pthread)
+        LINK_LIBRARIES (GL)
     #ELSE(ALSA_FOUND)
     #    MESSAGE(FATAL_ERROR "Please install the 'libasound2-dev' package and then try again")
     #ENDIF(ALSA_FOUND)
@@ -214,10 +216,11 @@ INSTALL( FILES pianobooster.desktop DESTINATION share/applications )
 INSTALL(TARGETS pianobooster RUNTIME DESTINATION bin)
 #INSTALL( index.docbook INSTALL_DESTINATION ${HTML_INSTALL_DIR}/en  SUBDIR kmidimon )
 
-INSTALL( FILES ../README.txt  DESTINATION share/doc/pianobooster )
+INSTALL( FILES ../README.txt  DESTINATION share/pianobooster/doc/ )
 
 INSTALL ( FILES images/pianobooster.png DESTINATION share/pixmaps )
 
+#INSTALL( FILES "${CMAKE_CURRENT_BINARY_DIR}/translations/*.qm  DESTINATION share/pianobooster/translations/ )
 
 
 

@@ -171,6 +171,23 @@ int CTrackList::guessKeySignature(int chanA, int chanB)
     return keySignature;
 }
 
+// Find an unused channel
+int CTrackList::findFreeChannel(int startChannel)
+{
+    int chan;
+    for (chan = startChannel; chan < MAX_MIDI_CHANNELS; chan++)
+    {
+        if (chan == Cfg::keyboardLightsChan)
+            continue;
+        if (chan == MIDI_DRUM_CHANNEL)
+            continue;
+        if (m_midiActiveChannels[chan] == false)
+            return chan;
+    }
+    return -1;      // Not found
+
+}
+
 void CTrackList::refresh()
 {
     int chan;
@@ -205,25 +222,21 @@ void CTrackList::refresh()
     if (CStavePos::getKeySignature() == NOT_USED)
         CStavePos::setKeySignature(guessKeySignature(CNote::rightHandChan(),CNote::leftHandChan()), 0);
 
-    int goodChan = -1;
     // Find an unused channel that we can use for the keyboard
-    for (chan = 0; chan < MAX_MIDI_CHANNELS; chan++)
+    m_song->reset();
+    int goodChan = findFreeChannel(0);
+    int badChan = findFreeChannel(goodChan + 1);
+    int spareChan = findFreeChannel(badChan  +1 );
+    if (badChan == -1)
     {
-        if (m_midiActiveChannels[chan] == false)
-        {
-            if (goodChan != -1)
-            {
-                m_song->setPianistChannels(goodChan,chan);
-                ppLogInfo("Using Pianist Channels %d + %d", goodChan +1, chan +1);
-                return;
-            }
-            goodChan = chan;
-        }
-    }
-    // As we have not returned we have not found to empty channels to use
-    if (goodChan == -1)
+        // As we have not found two we have not found to empty channels to use
         goodChan = 15 -1;
-    m_song->setPianistChannels(goodChan,16-1);
+        badChan  = 16-1;
+    }
+    m_song->setPianistChannels(goodChan,badChan);
+    ppLogInfo("Using Pianist Channels %d + %d", goodChan +1, badChan +1);
+    if (Cfg::keyboardLightsChan != -1 && spareChan != -1)
+        m_song->mapTrack2Channel(Cfg::keyboardLightsChan,  spareChan);
 }
 
 int CTrackList::getActiveItemIndex()
@@ -252,9 +265,9 @@ QStringList CTrackList::getAllChannelProgramNames(bool raw)
         if (raw == false)
         {
             if (CNote::leftHandChan() == chan)
-                hand += "L";
+                hand += QObject::tr("L");
             if (CNote::rightHandChan() == chan)
-                hand += "R";
+                hand += QObject::tr("R");
         }
         text = QString::number(chan+1) + hand + " " + getChannelProgramName(chan);
         items += text;
@@ -327,10 +340,10 @@ QString CTrackList::getChannelProgramName(int chan)
     int program = m_midiFirstPatchChannels[chan];
 
     if (chan==10-1)
-        return "Drums";
+        return QObject::tr("Drums");
     QString name = getProgramName(program +1); // Skip
     if (name.isEmpty())
-        name = "Unknown";
+        name = QObject::tr("Unknown");
 
     return name;
 }
@@ -339,139 +352,139 @@ QString CTrackList::getProgramName(int program)
 {
     const char * const gmInstrumentNames[] =
     {
-                   "(None)",  // Don't use
-        /* 1.   */ "Grand Piano",
-        /* 2.   */ "Bright Piano",
-        /* 3.   */ "Electric Grand",
-        /* 4.   */ "Honky-tonk Piano",
-        /* 5.   */ "Electric Piano 1",
-        /* 6.   */ "Electric Piano 2",
-        /* 7.   */ "Harpsichord",
-        /* 8.   */ "Clavi",
-        /* 9.   */ "Celesta",
-        /* 10.  */ "Glockenspiel",
-        /* 11.  */ "Music Box",
-        /* 12.  */ "Vibraphone",
-        /* 13.  */ "Marimba",
-        /* 14.  */ "Xylophone",
-        /* 15.  */ "Tubular Bells",
-        /* 16.  */ "Dulcimer",
-        /* 17.  */ "Drawbar Organ",
-        /* 18.  */ "Percussive Organ",
-        /* 19.  */ "Rock Organ",
-        /* 20.  */ "Church Organ",
-        /* 21.  */ "Reed Organ",
-        /* 22.  */ "Accordion",
-        /* 23.  */ "Harmonica",
-        /* 24.  */ "Tango Accordion",
-        /* 25.  */ "Acoustic Guitar (nylon)",
-        /* 26.  */ "Acoustic Guitar (steel)",
-        /* 27.  */ "Electric Guitar (jazz)",
-        /* 28.  */ "Electric Guitar (clean)",
-        /* 29.  */ "Electric Guitar (muted)",
-        /* 30.  */ "Overdriven Guitar",
-        /* 31.  */ "Distortion Guitar",
-        /* 32.  */ "Guitar harmonics",
-        /* 33.  */ "Acoustic Bass",
-        /* 34.  */ "Electric Bass (finger)",
-        /* 35.  */ "Electric Bass (pick)",
-        /* 36.  */ "Fretless Bass",
-        /* 37.  */ "Slap Bass 1",
-        /* 38.  */ "Slap Bass 2",
-        /* 39.  */ "Synth Bass 1",
-        /* 40.  */ "Synth Bass 2",
-        /* 41.  */ "Violin",
-        /* 42.  */ "Viola",
-        /* 43.  */ "Cello",
-        /* 44.  */ "Contrabass",
-        /* 45.  */ "Tremolo Strings",
-        /* 46.  */ "Pizzicato Strings",
-        /* 47.  */ "Orchestral Harp",
-        /* 48.  */ "Timpani",
-        /* 49.  */ "String Ensemble 1",
-        /* 50.  */ "String Ensemble 2",
-        /* 51.  */ "SynthStrings 1",
-        /* 52.  */ "SynthStrings 2",
-        /* 53.  */ "Choir Aahs",
-        /* 54.  */ "Voice Oohs",
-        /* 55.  */ "Synth Voice",
-        /* 56.  */ "Orchestra Hit",
-        /* 57.  */ "Trumpet",
-        /* 58.  */ "Trombone",
-        /* 59.  */ "Tuba",
-        /* 60.  */ "Muted Trumpet",
-        /* 61.  */ "French Horn",
-        /* 62.  */ "Brass Section",
-        /* 63.  */ "SynthBrass 1",
-        /* 64.  */ "SynthBrass 2",
-        /* 65.  */ "Soprano Sax",
-        /* 66.  */ "Alto Sax",
-        /* 67.  */ "Tenor Sax",
-        /* 68.  */ "Baritone Sax",
-        /* 69.  */ "Oboe",
-        /* 70.  */ "English Horn",
-        /* 71.  */ "Bassoon",
-        /* 72.  */ "Clarinet",
-        /* 73.  */ "Piccolo",
-        /* 74.  */ "Flute",
-        /* 75.  */ "Recorder",
-        /* 76.  */ "Pan Flute",
-        /* 77.  */ "Blown Bottle",
-        /* 78.  */ "Shakuhachi",
-        /* 79.  */ "Whistle",
-        /* 80.  */ "Ocarina",
-        /* 81.  */ "Lead 1 (square)",
-        /* 82.  */ "Lead 2 (sawtooth)",
-        /* 83.  */ "Lead 3 (calliope)",
-        /* 84.  */ "Lead 4 (chiff)",
-        /* 85.  */ "Lead 5 (charang)",
-        /* 86.  */ "Lead 6 (voice)",
-        /* 87.  */ "Lead 7 (fifths)",
-        /* 88.  */ "Lead 8 (bass + lead)",
-        /* 89.  */ "Pad 1 (new age)",
-        /* 90.  */ "Pad 2 (warm)",
-        /* 91.  */ "Pad 3 (polysynth)",
-        /* 92.  */ "Pad 4 (choir)",
-        /* 93.  */ "Pad 5 (bowed)",
-        /* 94.  */ "Pad 6 (metallic)",
-        /* 95.  */ "Pad 7 (halo)",
-        /* 96.  */ "Pad 8 (sweep)",
-        /* 97.  */ "FX 1 (rain)",
-        /* 98.  */ "FX 2 (soundtrack)",
-        /* 99.  */ "FX 3 (crystal)",
-        /* 100. */ "FX 4 (atmosphere)",
-        /* 101. */ "FX 5 (brightness)",
-        /* 102. */ "FX 6 (goblins)",
-        /* 103. */ "FX 7 (echoes)",
-        /* 104. */ "FX 8 (sci-fi)",
-        /* 105. */ "Sitar",
-        /* 106. */ "Banjo",
-        /* 107. */ "Shamisen",
-        /* 108. */ "Koto",
-        /* 109. */ "Kalimba",
-        /* 110. */ "Bag pipe",
-        /* 111. */ "Fiddle",
-        /* 112. */ "Shanai",
-        /* 113. */ "Tinkle Bell",
-        /* 114. */ "Agogo",
-        /* 115. */ "Steel Drums",
-        /* 116. */ "Woodblock",
-        /* 117. */ "Taiko Drum",
-        /* 118. */ "Melodic Tom",
-        /* 119. */ "Synth Drum",
-        /* 120. */ "Reverse Cymbal",
-        /* 121. */ "Guitar Fret Noise",
-        /* 122. */ "Breath Noise",
-        /* 123. */ "Seashore",
-        /* 124. */ "Bird Tweet",
-        /* 125. */ "Telephone Ring",
-        /* 126. */ "Helicopter",
-        /* 127. */ "Applause",
-        /* 128. */ "Gunshot",
+                   QT_TR_NOOP("(None)"),  // Don't use
+        /* 1.   */ QT_TR_NOOP("Grand Piano"),
+        /* 2.   */ QT_TR_NOOP("Bright Piano"),
+        /* 3.   */ QT_TR_NOOP("Electric Grand"),
+        /* 4.   */ QT_TR_NOOP("Honky-tonk Piano"),
+        /* 5.   */ QT_TR_NOOP("Electric Piano 1"),
+        /* 6.   */ QT_TR_NOOP("Electric Piano 2"),
+        /* 7.   */ QT_TR_NOOP("Harpsichord"),
+        /* 8.   */ QT_TR_NOOP("Clavi"),
+        /* 9.   */ QT_TR_NOOP("Celesta"),
+        /* 10.  */ QT_TR_NOOP("Glockenspiel"),
+        /* 11.  */ QT_TR_NOOP("Music Box"),
+        /* 12.  */ QT_TR_NOOP("Vibraphone"),
+        /* 13.  */ QT_TR_NOOP("Marimba"),
+        /* 14.  */ QT_TR_NOOP("Xylophone"),
+        /* 15.  */ QT_TR_NOOP("Tubular Bells"),
+        /* 16.  */ QT_TR_NOOP("Dulcimer"),
+        /* 17.  */ QT_TR_NOOP("Drawbar Organ"),
+        /* 18.  */ QT_TR_NOOP("Percussive Organ"),
+        /* 19.  */ QT_TR_NOOP("Rock Organ"),
+        /* 20.  */ QT_TR_NOOP("Church Organ"),
+        /* 21.  */ QT_TR_NOOP("Reed Organ"),
+        /* 22.  */ QT_TR_NOOP("Accordion"),
+        /* 23.  */ QT_TR_NOOP("Harmonica"),
+        /* 24.  */ QT_TR_NOOP("Tango Accordion"),
+        /* 25.  */ QT_TR_NOOP("Acoustic Guitar (nylon)"),
+        /* 26.  */ QT_TR_NOOP("Acoustic Guitar (steel)"),
+        /* 27.  */ QT_TR_NOOP("Electric Guitar (jazz)"),
+        /* 28.  */ QT_TR_NOOP("Electric Guitar (clean)"),
+        /* 29.  */ QT_TR_NOOP("Electric Guitar (muted)"),
+        /* 30.  */ QT_TR_NOOP("Overdriven Guitar"),
+        /* 31.  */ QT_TR_NOOP("Distortion Guitar"),
+        /* 32.  */ QT_TR_NOOP("Guitar harmonics"),
+        /* 33.  */ QT_TR_NOOP("Acoustic Bass"),
+        /* 34.  */ QT_TR_NOOP("Electric Bass (finger)"),
+        /* 35.  */ QT_TR_NOOP("Electric Bass (pick)"),
+        /* 36.  */ QT_TR_NOOP("Fretless Bass"),
+        /* 37.  */ QT_TR_NOOP("Slap Bass 1"),
+        /* 38.  */ QT_TR_NOOP("Slap Bass 2"),
+        /* 39.  */ QT_TR_NOOP("Synth Bass 1"),
+        /* 40.  */ QT_TR_NOOP("Synth Bass 2"),
+        /* 41.  */ QT_TR_NOOP("Violin"),
+        /* 42.  */ QT_TR_NOOP("Viola"),
+        /* 43.  */ QT_TR_NOOP("Cello"),
+        /* 44.  */ QT_TR_NOOP("Contrabass"),
+        /* 45.  */ QT_TR_NOOP("Tremolo Strings"),
+        /* 46.  */ QT_TR_NOOP("Pizzicato Strings"),
+        /* 47.  */ QT_TR_NOOP("Orchestral Harp"),
+        /* 48.  */ QT_TR_NOOP("Timpani"),
+        /* 49.  */ QT_TR_NOOP("String Ensemble 1"),
+        /* 50.  */ QT_TR_NOOP("String Ensemble 2"),
+        /* 51.  */ QT_TR_NOOP("SynthStrings 1"),
+        /* 52.  */ QT_TR_NOOP("SynthStrings 2"),
+        /* 53.  */ QT_TR_NOOP("Choir Aahs"),
+        /* 54.  */ QT_TR_NOOP("Voice Oohs"),
+        /* 55.  */ QT_TR_NOOP("Synth Voice"),
+        /* 56.  */ QT_TR_NOOP("Orchestra Hit"),
+        /* 57.  */ QT_TR_NOOP("Trumpet"),
+        /* 58.  */ QT_TR_NOOP("Trombone"),
+        /* 59.  */ QT_TR_NOOP("Tuba"),
+        /* 60.  */ QT_TR_NOOP("Muted Trumpet"),
+        /* 61.  */ QT_TR_NOOP("French Horn"),
+        /* 62.  */ QT_TR_NOOP("Brass Section"),
+        /* 63.  */ QT_TR_NOOP("SynthBrass 1"),
+        /* 64.  */ QT_TR_NOOP("SynthBrass 2"),
+        /* 65.  */ QT_TR_NOOP("Soprano Sax"),
+        /* 66.  */ QT_TR_NOOP("Alto Sax"),
+        /* 67.  */ QT_TR_NOOP("Tenor Sax"),
+        /* 68.  */ QT_TR_NOOP("Baritone Sax"),
+        /* 69.  */ QT_TR_NOOP("Oboe"),
+        /* 70.  */ QT_TR_NOOP("English Horn"),
+        /* 71.  */ QT_TR_NOOP("Bassoon"),
+        /* 72.  */ QT_TR_NOOP("Clarinet"),
+        /* 73.  */ QT_TR_NOOP("Piccolo"),
+        /* 74.  */ QT_TR_NOOP("Flute"),
+        /* 75.  */ QT_TR_NOOP("Recorder"),
+        /* 76.  */ QT_TR_NOOP("Pan Flute"),
+        /* 77.  */ QT_TR_NOOP("Blown Bottle"),
+        /* 78.  */ QT_TR_NOOP("Shakuhachi"),
+        /* 79.  */ QT_TR_NOOP("Whistle"),
+        /* 80.  */ QT_TR_NOOP("Ocarina"),
+        /* 81.  */ QT_TR_NOOP("Lead 1 (square)"),
+        /* 82.  */ QT_TR_NOOP("Lead 2 (sawtooth)"),
+        /* 83.  */ QT_TR_NOOP("Lead 3 (calliope)"),
+        /* 84.  */ QT_TR_NOOP("Lead 4 (chiff)"),
+        /* 85.  */ QT_TR_NOOP("Lead 5 (charang)"),
+        /* 86.  */ QT_TR_NOOP("Lead 6 (voice)"),
+        /* 87.  */ QT_TR_NOOP("Lead 7 (fifths)"),
+        /* 88.  */ QT_TR_NOOP("Lead 8 (bass + lead)"),
+        /* 89.  */ QT_TR_NOOP("Pad 1 (new age)"),
+        /* 90.  */ QT_TR_NOOP("Pad 2 (warm)"),
+        /* 91.  */ QT_TR_NOOP("Pad 3 (polysynth)"),
+        /* 92.  */ QT_TR_NOOP("Pad 4 (choir)"),
+        /* 93.  */ QT_TR_NOOP("Pad 5 (bowed)"),
+        /* 94.  */ QT_TR_NOOP("Pad 6 (metallic)"),
+        /* 95.  */ QT_TR_NOOP("Pad 7 (halo)"),
+        /* 96.  */ QT_TR_NOOP("Pad 8 (sweep)"),
+        /* 97.  */ QT_TR_NOOP("FX 1 (rain)"),
+        /* 98.  */ QT_TR_NOOP("FX 2 (soundtrack)"),
+        /* 99.  */ QT_TR_NOOP("FX 3 (crystal)"),
+        /* 100. */ QT_TR_NOOP("FX 4 (atmosphere)"),
+        /* 101. */ QT_TR_NOOP("FX 5 (brightness)"),
+        /* 102. */ QT_TR_NOOP("FX 6 (goblins)"),
+        /* 103. */ QT_TR_NOOP("FX 7 (echoes)"),
+        /* 104. */ QT_TR_NOOP("FX 8 (sci-fi)"),
+        /* 105. */ QT_TR_NOOP("Sitar"),
+        /* 106. */ QT_TR_NOOP("Banjo"),
+        /* 107. */ QT_TR_NOOP("Shamisen"),
+        /* 108. */ QT_TR_NOOP("Koto"),
+        /* 109. */ QT_TR_NOOP("Kalimba"),
+        /* 110. */ QT_TR_NOOP("Bag pipe"),
+        /* 111. */ QT_TR_NOOP("Fiddle"),
+        /* 112. */ QT_TR_NOOP("Shanai"),
+        /* 113. */ QT_TR_NOOP("Tinkle Bell"),
+        /* 114. */ QT_TR_NOOP("Agogo"),
+        /* 115. */ QT_TR_NOOP("Steel Drums"),
+        /* 116. */ QT_TR_NOOP("Woodblock"),
+        /* 117. */ QT_TR_NOOP("Taiko Drum"),
+        /* 118. */ QT_TR_NOOP("Melodic Tom"),
+        /* 119. */ QT_TR_NOOP("Synth Drum"),
+        /* 120. */ QT_TR_NOOP("Reverse Cymbal"),
+        /* 121. */ QT_TR_NOOP("Guitar Fret Noise"),
+        /* 122. */ QT_TR_NOOP("Breath Noise"),
+        /* 123. */ QT_TR_NOOP("Seashore"),
+        /* 124. */ QT_TR_NOOP("Bird Tweet"),
+        /* 125. */ QT_TR_NOOP("Telephone Ring"),
+        /* 126. */ QT_TR_NOOP("Helicopter"),
+        /* 127. */ QT_TR_NOOP("Applause"),
+        /* 128. */ QT_TR_NOOP("Gunshot"),
     };
 
     if (program >= 0 && program < static_cast<int>(arraySize(gmInstrumentNames)))
-        return gmInstrumentNames[program];
+        return QObject::tr(gmInstrumentNames[program]);
     else
         return QString();
 }

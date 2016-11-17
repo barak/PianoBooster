@@ -44,6 +44,7 @@ public:
 
     ~CScore();
 
+    void init();
 
     //! add a midi event to be analysed and displayed on the score
     void midiEventInsert(CMidiEvent event)
@@ -103,7 +104,8 @@ public:
 
     void setPlayedNoteColour(int note, CColour colour, int wantedDelta, int pianistTimming = NOT_USED)
     {
-        m_scroll[m_activeScroll]->setPlayedNoteColour(note, colour, wantedDelta, pianistTimming);
+        if (m_activeScroll>=0)
+            m_scroll[m_activeScroll]->setPlayedNoteColour(note, colour, wantedDelta, pianistTimming);
     }
 
 
@@ -117,13 +119,18 @@ public:
 
         if (m_activeScroll != newActiveSroll)
         {
-            m_scroll[m_activeScroll]->showScroll(false);
+            if (m_activeScroll>=0)
+                m_scroll[m_activeScroll]->showScroll(false);
             m_activeScroll = newActiveSroll;
             m_scroll[m_activeScroll]->showScroll(true);
         }
     }
 
-    void refreshScroll() { m_scroll[m_activeScroll]->refresh(); }
+    void refreshScroll()
+    {
+        if (m_activeScroll>=0)
+            m_scroll[m_activeScroll]->refresh();
+    }
 
 
     void setDisplayHand(whichPart_t hand)

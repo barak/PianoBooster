@@ -39,8 +39,18 @@ int Cfg::m_appY;
 int Cfg::m_appWidth;
 int Cfg::m_appHeight;
 bool Cfg::experimentalTempo = false;
+bool Cfg::experimentalNoteLength = false;
+bool Cfg::useLogFile = false;
+bool Cfg::midiInputDump = false;
+int Cfg::keyboardLightsChan = -1;
+
 int Cfg::experimentalSwapInterval = -1;
+int Cfg::tickRate;
 
 const int Cfg::m_playZoneEarly = 25; // Was 25
 const int Cfg::m_playZoneLate = 25;
+
+
+
+
 

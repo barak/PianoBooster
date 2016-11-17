@@ -33,6 +33,7 @@
 #include "MidiFile.h"
 #include "Chord.h"
 
+#define MICRO_SECOND 1000000.0
 
 // Define a chord
 class CTempo
@@ -40,22 +41,24 @@ class CTempo
 public:
     CTempo()
     {
-        m_savedwantedChord = 0;
+        m_savedWantedChord = 0;
         reset();
     }
-    void setSavedwantedChord(CChord * savedwantedChord) { m_savedwantedChord = savedwantedChord; }
+    void setSavedWantedChord(CChord * savedWantedChord) { m_savedWantedChord = savedWantedChord; }
 
 
     void reset()
     {
-        m_midiTempo = 1000000 * 120 / 60;// 120 beats per minute is the default
+        // 120 beats per minute is the default
+        setMidiTempo(static_cast<int>(( 60 * MICRO_SECOND ) / 120 ));
         m_jumpAheadDelta = 0;
     }
 
+    // Tempo, microseconds-per-MIDI-quarter-note
     void setMidiTempo(int tempo)
     {
-        m_midiTempo = float (tempo) * DEFAULT_PPQN / CMidiFile::getPulsesPerQuarterNote();
-        ppLogWarn("Midi Tempo %f  %d", m_midiTempo, CMidiFile::getPulsesPerQuarterNote());
+        m_midiTempo = (static_cast<float>(tempo) * DEFAULT_PPQN) / CMidiFile::getPulsesPerQuarterNote();
+        ppLogWarn("Midi Tempo %f  ppqn %d %d", m_midiTempo, CMidiFile::getPulsesPerQuarterNote(), tempo);
     }
 
     void setSpeed(float speed)
@@ -71,7 +74,7 @@ public:
 
     int mSecToTicks(int mSec)
     {
-        return static_cast<int>(mSec * m_userSpeed * 100000000.0 /m_midiTempo);
+        return static_cast<int>(mSec * m_userSpeed * (100.0 * MICRO_SECOND) /m_midiTempo);
     }
 
     void insertPlayingTicks(int ticks)
@@ -104,7 +107,7 @@ private:
     int m_jumpAheadDelta;
     static int m_cfg_maxJumpAhead;
     static int m_cfg_followTempoAmount;
-    CChord *m_savedwantedChord; // A copy of the wanted chord complete with both left and right parts
+    CChord *m_savedWantedChord; // A copy of the wanted chord complete with both left and right parts
 
 
 };

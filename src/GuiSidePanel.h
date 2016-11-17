@@ -75,6 +75,16 @@ public:
         on_songCombo_activated(n);
     }
 
+    void nextBook(int amount)
+    {
+        int n = bookCombo->currentIndex() + amount;
+        if (n < 0 || n >= bookCombo->count())
+            return;
+
+        bookCombo->setCurrentIndex(n);
+        on_bookCombo_activated(n);
+    }
+
 private slots:
     void on_songCombo_activated (int index);
     void on_bookCombo_activated (int index);
@@ -100,19 +110,32 @@ private slots:
     {
         if (!m_song || !checked) return;
         m_song->setPlayMode(PB_PLAY_MODE_listen);
+        autoSetMuteYourPart();
+    }
+
+    void on_rhythmTapRadio_toggled (bool checked)
+    {
+        if (!m_song || !checked) return;
+        m_song->setPlayMode(PB_PLAY_MODE_rhythmTapping);
+        autoSetMuteYourPart();
     }
 
     void on_followYouRadio_toggled (bool checked)
     {
         if (!m_song || !checked) return;
         m_song->setPlayMode(PB_PLAY_MODE_followYou);
+        autoSetMuteYourPart();
     }
 
     void on_playAlongRadio_toggled (bool checked)
     {
         if (!m_song || !checked) return;
         m_song->setPlayMode(PB_PLAY_MODE_playAlong);
+        autoSetMuteYourPart();
     }
+
+
+    void on_rhythmTappingCombo_activated (int index);
 
     void on_muteYourPartCheck_toggled (bool checked)
     {

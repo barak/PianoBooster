@@ -23,20 +23,50 @@
 
 #include <QtOpenGL>
 #include "QtWindow.h"
- 
+
 int main(int argc, char *argv[])
 {
+
     QApplication app(argc, argv);
-    
+
+     QString locale = QLocale::system().name();
+     printf("locale = %s\n", qPrintable(locale));
+
+    QString localeDirectory =
+#ifdef Q_OS_WIN32
+        QApplication::applicationDirPath() + "/translations/";
+#endif
+#ifdef Q_OS_LINUX
+        QApplication::applicationDirPath() + "/../share/" + QSTR_APPNAME + "/translations/";
+#endif
+#ifdef Q_OS_DARWIN
+        QApplication::applicationDirPath() + "/../Resources/translations/";
+#endif
+
+
+     QTranslator translator;
+     if (!translator.load(QSTR_APPNAME + QString("_") + locale , localeDirectory))
+        if (!translator.load(QSTR_APPNAME + QString("_") + locale, QApplication::applicationDirPath()  + "/translations/"))
+            translator.load(QSTR_APPNAME + QString("_") + locale, QApplication::applicationDirPath());
+
+     app.installTranslator(&translator);
+
+
+
     if (!QGLFormat::hasOpenGL()) {
-        QMessageBox::information(0, "OpenGL support",
-                 "This system does not support OpenGL which is needed to run Piano Booster.");
+        QMessageBox::information(0, QMessageBox::tr("OpenGL support"),
+                 QMessageBox::tr("This system does not support OpenGL which is needed to run Piano Booster."));
         return -1;
     }
 
+
+
     QtWindow window;
-    
+
     window.show();
-    return app.exec();
+
+    int value = app.exec();
+    closeLogs();
+    return value;
 }
 

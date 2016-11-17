@@ -68,7 +68,7 @@
 ;--------------------------------
 ;Installer Sections
 
-Section "Dummy Section" SecDummy
+Section "Install Section"
 
     SetOutPath "$INSTDIR"
 
@@ -80,12 +80,17 @@ Section "Dummy Section" SecDummy
     File FilesForRelease\QtXml4.dll
     File FilesForRelease\QtOpenGL4.dll
     File FilesForRelease\mingwm10.dll
+    File FilesForRelease\libgcc_s_dw2-1.dll
 
     CreateDirectory $INSTDIR\doc
     SetOutPath $INSTDIR\doc
     File FilesForRelease\README.txt
     File FilesForRelease\license.txt
     File FilesForRelease\gplv3.txt
+
+    CreateDirectory "$DOCUMENTS\My Music"
+    SetOutPath "$DOCUMENTS\My Music"
+    File /r FilesForRelease\BoosterMusicBooks1
 
     SetOutPath $INSTDIR
 
