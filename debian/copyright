@@ -9,12 +9,12 @@ Debianized-Date: Wed, 04 Mar 2009 02:22:56 +0100
 
 Files: *
 Copyright:
- 2008-2009, Louis J. Barman <louisjb@users.sourceforge.net>
- 2018 Fabien Givors <captnfab@chezlefab.net>
+ 2008-2013, Louis J. Barman <louisjb@users.sourceforge.net>
+ 2018-2019 Fabien Givors <captnfab@chezlefab.net>
 License: GPL-3+
 
 Files: src/rtmidi/RtMidi.cpp
-Copyright: Copyright (c) 2003-2011, Gary P. Scavone
+Copyright: Copyright (c) 2003-2019, Gary P. Scavone
 License: MIT
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
