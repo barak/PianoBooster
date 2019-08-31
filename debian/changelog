@@ -1,3 +1,35 @@
+pianobooster (0.6.8+git.903.56b485f-1) UNRELEASED; urgency=medium
+
+  [ Alexey Loginov ]
+  * Better installation by 'make install'
+  * Update dependencies
+  * Update copyright
+  * Update description
+
+  [ Barak A. Pearlmutter ]
+  * Adopt package
+  * New upstream version, and updates thereof
+    - include all 903 post-0.6.8 upstream commits
+    - ported to qt5 (closes: #875089, #922813)
+    - all quilt patches merged upstream
+    - desktop file now upstream
+    - man page now upstream
+    - icon now upstream
+    - README.txt becomes README.md
+    - upstream installs without assistance; rm debian/*.install
+  * Merge packaging mods made by upstream in pkgs/deb/* (thanks Alexey Loginov!)
+  * Update packaging
+    - bump policy, dh12
+    - shorten debian/rules
+    - scripts should automatically pass flags to cmake (closes: #883886)
+    - allow debug package to be generated automatically
+    - move packaging repo to salsa
+    - misc simplifications and updates
+    - menu file go bye bye (policy)
+    - upstream now on github; adjust debian/watch uscan support file
+
+ -- Barak A. Pearlmutter <bap@debian.org>  Sun, 01 Sep 2019 19:47:00 +0100
+
 pianobooster (0.6.7~svn156-1) unstable; urgency=medium
 
   [ Miriam Ruiz ]

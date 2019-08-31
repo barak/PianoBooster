@@ -1,0 +1,38 @@
+From: "Barak A. Pearlmutter" <barak+git@pearlmutter.net>
+Date: Sun, 1 Sep 2019 20:30:00 +0100
+Subject: desktop-mime-but-no-exec-code
+
+quash lintian warning,
+W: pianobooster: desktop-mime-but-no-exec-code usr/share/applications/pianobooster-fluidsynth.desktop
+W: pianobooster: desktop-mime-but-no-exec-code usr/share/applications/pianobooster-timidity.desktop
+---
+ tools/fluidsynth/pianobooster-fluidsynth.desktop | 2 +-
+ tools/timidity/pianobooster-timidity.desktop     | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/tools/fluidsynth/pianobooster-fluidsynth.desktop b/tools/fluidsynth/pianobooster-fluidsynth.desktop
+index 8a72317..7e80109 100644
+--- a/tools/fluidsynth/pianobooster-fluidsynth.desktop
++++ b/tools/fluidsynth/pianobooster-fluidsynth.desktop
+@@ -2,7 +2,7 @@
+ Name=Piano Booster (FluidSynth)
+ Comment=A MIDI file player that teaches you how to play the piano, with FluidSynth sequencer
+ GenericName=Piano Teacher
+-Exec=pianobooster-fluidsynth
++Exec=pianobooster-fluidsynth %f
+ Icon=pianobooster
+ Terminal=false
+ Type=Application
+diff --git a/tools/timidity/pianobooster-timidity.desktop b/tools/timidity/pianobooster-timidity.desktop
+index a1ef125..24964cf 100644
+--- a/tools/timidity/pianobooster-timidity.desktop
++++ b/tools/timidity/pianobooster-timidity.desktop
+@@ -2,7 +2,7 @@
+ Name=Piano Booster (TiMidity)
+ Comment=A MIDI file player that teaches you how to play the piano, with TiMidity sequencer
+ GenericName=Piano Teacher
+-Exec=pianobooster-timidity
++Exec=pianobooster-timidity %f
+ Icon=pianobooster
+ Terminal=false
+ Type=Application
