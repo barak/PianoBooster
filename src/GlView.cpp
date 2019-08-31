@@ -81,6 +81,11 @@ QSize CGLView::sizeHint() const
     return QSize(200, 400); //fixme this does not work
 }
 
+void CGLView::initializeGL()
+{
+    qglClearColor(m_backgroundColour.dark());
+}
+
 void CGLView::paintGL()
 {
     BENCHMARK(2, "enter");
@@ -267,7 +272,7 @@ void CGLView::resizeGL(int width, int height)
     int space = height - (heightAboveStave + heightBelowStave + minTitleHeight + minStaveGap);
     //m_titleHeight = qBound(minTitleHeight, minTitleHeight + space/2, 70);
     // staveGap = qBound(minStaveGap, minStaveGap+ space/2, static_cast<int>(CStavePos::staveHeight() * 3));
-    if (height < 430)  // So it works on an eeepc 701 (for Trev)
+    if (height < 450)  // So it works on an eeepc 701 (for Trev)
     {
         staveGap = minStaveGap;
         m_titleHeight = minTitleHeight;
@@ -306,7 +311,7 @@ void CGLView::mouseMoveEvent(QMouseEvent *event)
 {
 }
 
-void CGLView::initializeGL()
+void CGLView::init()
 {
     CColour colour = Cfg::backgroundColour();
     glClearColor (colour.red, colour.green, colour.blue, 0.0);
@@ -344,9 +349,6 @@ void CGLView::initializeGL()
     }
 
     setFocusPolicy(Qt::ClickFocus);
-    
-    m_score->init();
-
 
     // increased the tick time for Midi handling
     m_timer.start(4, this ); // was 12
