@@ -50,11 +50,19 @@ typedef enum {
 
 enum {
     PB_PLAY_MODE_listen,
+    PB_PLAY_MODE_rhythmTapping,
     PB_PLAY_MODE_followYou,
     PB_PLAY_MODE_playAlong
 };
 
 typedef int playMode_t;
+
+typedef enum {
+    PB_RHYTHM_TAP_drumsOnly,
+    PB_RHYTHM_TAP_mellodyOnly,
+    PB_RHYTHM_TAP_drumsAndMellody
+} rhythmTapping_t;
+
 
 typedef enum {
     PB_STOP_POINT_MODE_automatic,
@@ -72,7 +80,7 @@ public:
     CConductor();
     ~CConductor();
 
-    void init(CScore * scoreWin, CSettings* settings);
+    void init2(CScore * scoreWin, CSettings* settings);
 
 
     //! add a midi event to be analysed and played
@@ -89,10 +97,12 @@ public:
 
     void rewind();
 
+    //! rest the conductor between each song
+    void reset();
+
     void realTimeEngine(int mSecTicks);
     void playMusic(bool start);
     bool playingMusic() {return m_playing;}
-
 
     float getSpeed() {return m_tempo.getSpeed();}
     void setSpeed(float speed)
@@ -123,16 +133,9 @@ public:
     }
 
     void pianistInput(CMidiEvent inputNote);
-    void setPlayMode(playMode_t mode)
-    {
-        m_playMode = mode;
-        if (m_playMode < 0 ) m_playMode = 0;
-        if (m_playMode > 2 ) m_playMode = 2;
-        if ( m_playMode == PB_PLAY_MODE_listen )
-            resetWantedChord();
-        activatePianistMutePart();
-        outputBoostVolume();
-    }
+    void expandPianistInput(CMidiEvent inputNote);
+
+    void setPlayMode(playMode_t mode);
 
     int getBoostVolume() {return m_boostVolume;}
     void boostVolume(int boostVolume)
@@ -195,9 +198,14 @@ public:
     double getLoopingBars(){ return m_bar.getLoopingBars();}
 
     void mutePianistPart(bool state);
+    void mapTrack2Channel(int trackNumber, int channelNumber)
+    {
+        m_track2ChannelLookUp[trackNumber] = channelNumber;
+    }
 
     bool cfg_timingMarkersFlag;
     stopPointMode_t cfg_stopPointMode;
+    rhythmTapping_t cfg_rhythmTapping;
 
 
 protected:
@@ -213,11 +221,17 @@ protected:
     void activatePianistMutePart();
 
     void resetWantedChord();
+    void playWantedChord (CChord chord, CMidiEvent inputNote);
+
 
     bool validatePianistNote( const CMidiEvent& inputNote);
     bool validatePianistChord();
 
     bool seekingBarNumber() { return m_bar.seekingBarNumber();}
+
+    int track2Channel(int track) {return m_track2ChannelLookUp[track];}
+
+
 
 
 
@@ -228,9 +242,12 @@ private:
     void outputPianoVolume();
 
     void channelSoundOff(int channel);
+    void trackSoundOff(int trackNumber);
+
     void findSplitPoint();
     void fetchNextChord();
     void playTransposeEvent(CMidiEvent event);
+    void playTrackEvent(CMidiEvent event);
     void outputSavedNotesOff();
     void findImminentNotesOff();
     void updatePianoSounds();
@@ -241,7 +258,7 @@ private:
     int calcBoostVolume(int chan, int volume);
 
     void addDeltaTime(int ticks);
-
+    void turnOnKeyboardLights(bool on);
 
     int m_playingDeltaTime;
     int m_chordDeltaTime;
@@ -276,7 +293,7 @@ private:
     int m_leadLagAdjust; // Synchronise the sound the the video
     int m_silenceTimeOut; // used to create silence if the student stops for toooo long
     CChord m_wantedChord;  // The chord the pianist needs to play
-    CChord m_savedwantedChord; // A copy of the wanted chord complete with both left and right parts
+    CChord m_savedWantedChord; // A copy of the wanted chord complete with both left and right parts
     CChord m_goodPlayedNotes;  // The good notes the pianist plays
     CTempo m_tempo;
 
@@ -296,6 +313,9 @@ private:
     int m_cfg_playZoneEarly; // when playing along
     int m_cfg_playZoneLate;
 
+    int m_cfg_rhythmTapLeftHandDrumSound;
+    int m_cfg_rhythmTapRightHandDrumSound;
+
     int m_pianistTiming;  //measure whether the pianist is playing early or late
     bool m_followPlayingTimeOut;  // O dear, the student is too slow
 
@@ -308,6 +328,7 @@ private:
     int m_skill;
     bool m_mutePianistPart;
     int m_latencyFix;     // Try to fix the latency (put the time in msec, 0 disables it)
+    int m_track2ChannelLookUp[MAX_MIDI_TRACKS];
 };
 
 #endif //__CONDUCTOR_H__

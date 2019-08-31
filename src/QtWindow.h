@@ -48,6 +48,7 @@ class QMenu;
 
 class QSlider;
 class QPushButton;
+class QTextBrowser;
 
 class QtWindow : public QMainWindow
 {
@@ -57,11 +58,16 @@ public:
     QtWindow();
     ~QtWindow();
 
+    void init();
+
     void songEventUpdated(int eventBits)
     {
         if ((eventBits & EVENT_BITS_playingStopped) != 0)
             m_topBar->setPlayButtonState(false, true);
     }
+
+    void loadTutorHtml(const QString & name);
+    void setCurrentFile(const QString &fileName);
 
 private slots:
     void open();
@@ -69,6 +75,7 @@ private slots:
     void website();
     void about();
     void keyboardShortcuts();
+    void openRecentFile();
 
     void showMidiSetup()
     {
@@ -100,7 +107,14 @@ private slots:
 
     void toggleSidePanel()
     {
-        m_sidePanel->setVisible(!m_sidePanel->isVisible());
+        m_sidePanel->setVisible(m_sidePanelStateAct->isChecked());
+    }
+
+    void onFullScreenStateAct () {
+        if (m_fullScreenStateAct->isChecked())
+            showFullScreen();
+        else
+            showNormal();
     }
 
     void enableFollowTempo()
@@ -137,7 +151,8 @@ private slots:
     }
     void on_nextSong()   {  m_sidePanel->nextSong(+1); }
     void on_previousSong()   {  m_sidePanel->nextSong(-1); }
-
+    void on_nextBook()   {  m_sidePanel->nextBook(+1); }
+    void on_previousBook()   {  m_sidePanel->nextBook(-1); }
 
 protected:
     void closeEvent(QCloseEvent *event);
@@ -147,10 +162,13 @@ protected:
 private:
     void decodeCommandLine();
     int decodeIntegerParam(QString arg, int defaultParam);
+    bool validateIntegerParam(QString arg);
+    bool validateIntegerParamWithMessage(QString arg);
     void decodeMidiFileArg(QString arg);
     QString displayShortCut(QString code, QString description);
     void addShortcutAction(const QString & key, const char * method);
-
+    void updateRecentFileActions();
+    QString strippedName(const QString &fullFileName);
 
     void displayUsage();
     void createActions();
@@ -162,6 +180,7 @@ private:
 
     GuiSidePanel *m_sidePanel;
     GuiTopBar *m_topBar;
+    QTextBrowser *m_tutorWindow;
 
 
     CGLView *m_glWidget;
@@ -172,7 +191,8 @@ private:
     QAction *m_songPlayAct;
     QAction *m_setupMidiAct;
     QAction *m_setupKeyboardAct;
-    QAction *m_toggleSidePanelAct;
+    QAction *m_sidePanelStateAct;
+    QAction *m_fullScreenStateAct;
     QAction *m_setupPreferencesAct;
     QAction *m_songDetailsAct;
 
@@ -184,6 +204,11 @@ private:
 
     CSong* m_song;
     CScore* m_score;
+    QAction *m_separatorAct;
+
+    enum { MAX_RECENT_FILES = 10 };
+    QAction *m_recentFileActs[MAX_RECENT_FILES];
+
 };
 
 #endif // __QT_WINDOW_H__

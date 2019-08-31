@@ -66,6 +66,7 @@ CSettings::CSettings(QtWindow *mainWindow) : QSettings(CSettings::IniFormat, CSe
     m_advancedMode = false;
     m_pianistActive = false;
     m_noteNamesEnabled = value("Score/NoteNames", true ).toBool();
+    m_tutorPagesEnabled = value("Tutor/TutorPages", true ).toBool();
     CNotation::setCourtesyAccidentals(value("Score/CourtesyAccidentals", false ).toBool());
 }
 
@@ -83,18 +84,6 @@ void CSettings::init(CSong* song, GuiSidePanel* sidePanel, GuiTopBar* topBar)
     m_song = song;
     m_guiSidePanel = sidePanel;
     m_guiTopBar = topBar;
-
-    // Set defualt values
-    setValue("PianoBooster/Version",PB_VERSION);
-    setDefaultValue("ShortCuts/LeftHand", "F2");
-    setDefaultValue("ShortCuts/BothHands","F3");
-    setDefaultValue("ShortCuts/RightHand","F4");
-    setDefaultValue("ShortCuts/PlayFromStart","space");
-    setDefaultValue("ShortCuts/PlayPause","P");
-    setDefaultValue("ShortCuts/Faster","=");
-    setDefaultValue("ShortCuts/Slower","-");
-    setDefaultValue("ShortCuts/NextSong","]");
-    setDefaultValue("ShortCuts/PreviousSong","[");
 }
 
 
@@ -102,6 +91,13 @@ void CSettings::setNoteNamesEnabled(bool value) {
     m_noteNamesEnabled = value;
     setValue("Score/NoteNames", value );
 }
+
+void CSettings::setTutorPagesEnabled(bool value) {
+    m_tutorPagesEnabled = value;
+    setValue("Tutor/TutorPages", value );
+    updateTutorPage();
+}
+
 
 void CSettings::setCourtesyAccidentals(bool value) {
     CNotation::setCourtesyAccidentals(value);
@@ -263,11 +259,54 @@ void CSettings::saveXmlFile()
     file.close();
 }
 
+void CSettings::updateTutorPage()
+{
+    QFileInfo fileInfo(getCurrentSongLongFileName());
+    const char* EXTN = ".html";
+
+    QString fileBase = fileInfo.absolutePath() + "/InfoPages/" + fileInfo.completeBaseName() + "_";
+
+    QString locale = QLocale::system().name();
+
+    if (m_tutorPagesEnabled)
+    {
+		QFileInfo tutorFile;
+ 		tutorFile.setFile(fileBase + locale + EXTN);
+        if (tutorFile.exists())
+        {
+            m_mainWindow->loadTutorHtml(tutorFile.absoluteFilePath());
+            return;
+        }
+        int n = locale.indexOf("_");
+
+        if (n > 0)
+        {
+            locale = locale.left(n);
+ 			tutorFile.setFile(fileBase + locale + EXTN);
+            if (tutorFile.exists())
+            {
+                m_mainWindow->loadTutorHtml(tutorFile.absoluteFilePath());
+                return;
+            }
+        }
+
+        locale = "en";
+ 		tutorFile.setFile(fileBase + locale + EXTN);
+        if (tutorFile.exists())
+        {
+            m_mainWindow->loadTutorHtml(tutorFile.absoluteFilePath());
+            return;
+        }
+    }
+    m_mainWindow->loadTutorHtml(QString());
+
+}
+
 void CSettings::openSongFile(const QString & filename)
 {
     if (!QFile::exists(filename))
     {
-        ppLogWarn( "File does not exists %s", qPrintable(filename));
+        ppLogError( "File does not exists %s", qPrintable(filename));
         return;
     }
     QDir dirBooks;
@@ -336,16 +375,122 @@ void CSettings::writeSettings()
     saveXmlFile();
 }
 
+
 void CSettings::loadSettings()
 {
+    unzipBootserMusicBooks();
+    // Set default values
+    setValue("PianoBooster/Version", PB_VERSION);
+    setDefaultValue("ShortCuts/LeftHand", "F2");
+    setDefaultValue("ShortCuts/BothHands","F3");
+    setDefaultValue("ShortCuts/RightHand","F4");
+    setDefaultValue("ShortCuts/PlayFromStart","space");
+    setDefaultValue("ShortCuts/PlayPause","P");
+    setDefaultValue("ShortCuts/Faster","=");
+    setDefaultValue("ShortCuts/Slower","-");
+    setDefaultValue("ShortCuts/NextSong","]");
+    setDefaultValue("ShortCuts/PreviousSong","[");
+    setDefaultValue("ShortCuts/NextBook","{");
+    setDefaultValue("ShortCuts/PreviousBook","}");
     QString songName = value("CurrentSong").toString();
     if (!songName.isEmpty())
         openSongFile( songName );
 
     updateWarningMessages();
+    updateTutorPage();
 
 }
 
+void CSettings::unzipBootserMusicBooks()
+{
+    // Set default values
+
+    const int MUSIC_RELEASE = 1;
+    const QString ZIPFILENAME("BoosterMusicBooks.zip");
+
+
+    if (value("PianoBooster/MusicRelease", 0).toInt() < MUSIC_RELEASE)
+    {
+        QString resourceDir = QApplication::applicationDirPath() + "/../music/";
+
+        ppLogTrace("resourceDir1 %s", qPrintable(resourceDir));
+
+        if (!QFile::exists(resourceDir + ZIPFILENAME))
+            resourceDir = QApplication::applicationDirPath() + "/../../music/";
+        ppLogTrace("resourceDir2 %s", qPrintable(resourceDir));
+
+        if (!QFile::exists(resourceDir + ZIPFILENAME))
+        {
+#ifdef Q_OS_LINUX
+            resourceDir = QApplication::applicationDirPath() + "/../share/" + QSTR_APPNAME + "/music/";
+#endif
+#ifdef Q_OS_DARWIN
+            resourceDir = QApplication::applicationDirPath() + "/../Resources/music/";
+#endif
+        }
+
+        ppLogInfo(qPrintable("applicationDirPath=" + QApplication::applicationDirPath()));
+        ppLogTrace("resourceDir3 %s", qPrintable(resourceDir));
+
+
+        QFileInfo zipFile(resourceDir +  ZIPFILENAME);
+        ppLogTrace("xx %s", qPrintable(zipFile.filePath()));
+        
+		QDir destMusicDir;
+		
+#ifdef _WIN32
+        const QString MUSIC_DIR_NAME("My Music");
+		QSettings settings(QSettings::UserScope, "Microsoft", "Windows");
+		settings.beginGroup("CurrentVersion/Explorer/Shell Folders");
+		destMusicDir.setPath(QDir::fromNativeSeparators(settings.value("Personal").toString()));
+#else
+        const QString MUSIC_DIR_NAME("Music");
+		destMusicDir.setPath(QDir::homePath() );
+#endif
+         
+        if (!QDir(destMusicDir.absolutePath() + "/" + MUSIC_DIR_NAME).exists())
+        {
+            destMusicDir.mkdir(MUSIC_DIR_NAME);
+        }
+        destMusicDir.setPath(destMusicDir.absolutePath() + "/" + MUSIC_DIR_NAME);
+
+#ifndef _WIN32
+
+		// on windows the the installer does the unzipping
+        if (!zipFile.exists() )
+        {
+            ppLogError(qPrintable("Cannot find " + ZIPFILENAME));
+            return;
+        }
+
+
+
+        QProcess unzip;
+        unzip.start("unzip", QStringList() << "-o" << zipFile.filePath() << "-d" << destMusicDir.path() );
+        ppLogInfo(qPrintable("running unzip -o " + zipFile.filePath() + " -d " + destMusicDir.path()) );
+        char buf[1024];
+        while (true)
+        {
+            qint64 lineLength = unzip.readLine(buf, sizeof(buf));
+            if (lineLength <= 0)
+                break;
+            ppLogInfo(buf);
+                 // the line is available in buf
+        }
+
+
+        if (!unzip.waitForFinished())
+        {
+             ppLogError("unzip failed");
+             return;
+        }
+#endif       
+		QString fileName(destMusicDir.absolutePath() + "/BoosterMusicBooks" + QString::number(MUSIC_RELEASE) + "/Booster Music/01-ClairDeLaLune.mid");
+		openSongFile(fileName);
+		m_mainWindow->setCurrentFile(fileName);
+		setValue("PianoBooster/MusicRelease", MUSIC_RELEASE);
+    }
+}
 
 void CSettings::setCurrentSongName(const QString & name)
 {
@@ -362,6 +507,7 @@ void CSettings::setCurrentSongName(const QString & name)
     m_guiSidePanel->refresh();
     m_guiTopBar->refresh(true);
     m_mainWindow->setWindowTitle("Piano Booster - " + m_song->getSongTitle());
+    updateTutorPage();
 }
 
 void CSettings::setCurrentBookName(const QString & name, bool clearSongName)
@@ -389,9 +535,9 @@ void CSettings::setChannelHands(int left, int right)
 void CSettings::updateWarningMessages()
 {
     if (!m_song->validMidiOutput())
-        m_warningMessage = tr("NO MIDI OUTPUT DEVICE: Use menu Setup/Midi Setup ...");
+        m_warningMessage = tr("ERROR NO SOUND: To fix this use menu Setup/Midi Setup ...");
     else if (m_currentSongName.isEmpty())
-        m_warningMessage = tr("NO MIDI FILE LOADED: Use menu File/Open ...");
+        m_warningMessage = tr("ERROR NO MIDI FILE: To fix this use menu File/Open ...");
     else
         m_warningMessage.clear();
 }

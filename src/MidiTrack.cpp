@@ -46,7 +46,13 @@ CMidiTrack::CMidiTrack(fstream& file, int no) :m_file(file), m_trackNumber(no)
     m_savedRunningStatus = 0;
     m_trackLengthCounter = 0;
     m_deltaTime = 0;
+    m_currentTime = 0;
     midiFailReset();
+
+    for ( int chan = 0; chan <MAX_MIDI_CHANNELS; chan++ )
+    {
+        m_noteOnEventPtr[chan] = 0;
+    }
 
     int i;
 
@@ -78,7 +84,7 @@ void CMidiTrack::ppDebugTrack(int level, const char *msg, ...)
     if (level <m_logLevel)
         return;
 
-    fprintf(stdout, "Track %d length %5lu: ", m_trackNumber , m_trackLengthCounter);
+    fprintf(stdout, "Dbug: Track %d length %5lu: ", m_trackNumber , m_trackLengthCounter);
     va_start(ap, msg);
     vfprintf(stdout, msg, ap);
     va_end(ap);
@@ -228,7 +234,7 @@ void CMidiTrack::readKeySignatureEvent()
     }
     keySig = static_cast<char>(readByte());  // force sign conversion The key sig 0=middle C
     majorKey =readByte(); // Major or Minor
-    if (keySig >= 7 || keySig <= -7 )
+    if (keySig > 7 || keySig < -7 )
     {
         errorFail(SMF_CORRUPTED_MIDI_FILE);
         return;
@@ -386,6 +392,30 @@ void CMidiTrack::decodeSystemMessage( byte_t status, byte_t data1 )
     }
 }
 
+void CMidiTrack::noteOffEvent(CMidiEvent &event, int deltaTime, int channel, int pitch, int velocity)
+{
+    createNoteEventPtr(channel);
+
+    CMidiEvent* noteOnEventPtr = m_noteOnEventPtr[channel][pitch];
+
+    if (noteOnEventPtr)
+    {
+        int duration = m_currentTime - noteOnEventPtr->getDuration();
+        noteOnEventPtr->setDuration(duration);
+        //ppLogDebug ("NOTE OFF chan %d pitch %d  currentTime %d Duration %d", channel + 1, pitch, m_currentTime, duration);
+    }
+    else
+    {
+        ppLogWarn("Missing note off duration Chan %d Note off %d", channel + 1, pitch);
+    }
+    m_noteOnEventPtr[channel][pitch] = 0;
+
+
+    event.noteOffEvent(deltaTime, channel, pitch, velocity);
+
+    m_trackEventQueue->push(event);
+    ppDEBUG_TRACK((1,"Chan %d Note off %d", channel + 1, pitch));
+}
 
 void CMidiTrack::decodeMidiEvent()
 {
@@ -394,7 +424,9 @@ void CMidiTrack::decodeMidiEvent()
     byte_t status, data1, data2;
     int channel;
 
-    m_deltaTime += readVarLen();
+    int deltaTicks = readVarLen();
+    m_deltaTime += deltaTicks;
+    m_currentTime += deltaTicks;
 
     c = readByte();
     if ((c & 0x80) == 0 )
@@ -407,6 +439,10 @@ void CMidiTrack::decodeMidiEvent()
         status = c;
         m_savedRunningStatus = status;
         data1=readByte();
+        if ((data1 & 0x80) != 0) {
+            errorFail(SMF_CORRUPTED_MIDI_FILE);
+            return;
+        }
     }
 
     channel = status & 0x0f;
@@ -415,9 +451,7 @@ void CMidiTrack::decodeMidiEvent()
     {
     case MIDI_NOTE_OFF:              /* Note off */
         data2 = readByte();
-        event.noteOffEvent(readDelaTime(), channel, data1, data2);
-        m_trackEventQueue->push(event);
-        ppDEBUG_TRACK((1,"Chan %d Note off", channel + 1));
+        noteOffEvent(event, readDelaTime(), channel, data1, data2);
         break;
 
     case MIDI_NOTE_ON:             /* Note on */
@@ -426,13 +460,20 @@ void CMidiTrack::decodeMidiEvent()
         {
             event.noteOnEvent(readDelaTime(), channel, data1, data2);
             ppDEBUG_TRACK((1,"Chan %d note on %d",channel + 1, data1));
+
+            event.setDuration(m_currentTime); // Set the duration to the current time for now
+            //ppLogDebug ("NOTE ON  pitch %d m_currentTime %d event->getDuration() %d", data1, m_currentTime, event.getDuration());
+
+            CMidiEvent* eventPtr = m_trackEventQueue->push(event);
+
+            // Save a reference to the note on event
+            createNoteEventPtr(channel);
+            m_noteOnEventPtr[channel] [data1]  = eventPtr;
         }
         else
         {
-            event.noteOffEvent(readDelaTime(),channel, data1, 0);
-            ppDEBUG_TRACK((1,"Chan %d note OFF %d",channel + 1, data1));
+            noteOffEvent(event, readDelaTime(), channel, data1, 0);
         }
-        m_trackEventQueue->push(event);
         break;
 
     case MIDI_NOTE_PRESSURE :              /* Key pressure After touch (POLY_AFTERTOUCH)  3 bytes */

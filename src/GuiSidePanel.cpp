@@ -54,21 +54,29 @@ void GuiSidePanel::init(CSong* songObj, CTrackList* trackList, GuiTopBar* topBar
     followYouRadio->setChecked(true);
     bothHandsRadio->setChecked(true);
 
+    rhythmTappingCombo->addItem(tr("Drums"));
+    rhythmTappingCombo->addItem(tr("Melody"));
+    //FIXME rhythmTappingCombo->addItem(tr("Drums+M"));
+
+
+    rhythmTappingCombo->setCurrentIndex(m_song->cfg_rhythmTapping);
+
+
     boostSlider->setMinimum(-100);
     boostSlider->setMaximum(100);
     pianoSlider->setMinimum(-100);
     pianoSlider->setMaximum(100);
 
     QAction* act;
-    act = new QAction("Set as Right Hand Part", this);
+    act = new QAction(tr("Set as Right Hand Part"), this);
     trackListWidget->addAction(act);
     connect(act, SIGNAL(triggered()), this, SLOT(setTrackRightHandPart()));
 
-    act = new QAction("Set as Left Hand Part", this);
+    act = new QAction(tr("Set as Left Hand Part"), this);
     trackListWidget->addAction(act);
     connect(act, SIGNAL(triggered()), this, SLOT(setTrackLeftHandPart()));
 
-    act = new QAction("Reset Both Parts", this);
+    act = new QAction(tr("Reset Both Parts"), this);
     trackListWidget->addAction(act);
     connect(act, SIGNAL(triggered()), this, SLOT(clearTrackPart()));
 
@@ -157,6 +165,12 @@ void GuiSidePanel::autoSetMuteYourPart()
     bool checked = false;
     if ( CNote::hasPianoPart(m_song->getActiveChannel()))
         checked =  true;
+    if (m_song->getPlayMode() == PB_PLAY_MODE_rhythmTapping)
+    {
+        if (m_song->cfg_rhythmTapping == PB_RHYTHM_TAP_drumsOnly)
+            checked = false;
+    }
+
     muteYourPartCheck->setChecked(checked);
     m_song->mutePianistPart(checked);
 }
@@ -188,6 +202,22 @@ void GuiSidePanel::setCurrentHand(QString hand)
         rightHandRadio->setChecked(true);
     else
         bothHandsRadio->setChecked(true);
-    //on_bothHandsRadio_toggled
+}
+
+
+void GuiSidePanel::on_rhythmTappingCombo_activated (int index)
+{
+    switch ((rhythmTappingCombo->currentIndex()))
+    {
+        case 1 :
+            m_song->cfg_rhythmTapping = PB_RHYTHM_TAP_mellodyOnly;
+            break;
+        case 2 :
+            m_song->cfg_rhythmTapping = PB_RHYTHM_TAP_drumsAndMellody;
+           break;
+        default:
+            m_song->cfg_rhythmTapping = PB_RHYTHM_TAP_drumsOnly;
+    }
+    autoSetMuteYourPart();
 }
 

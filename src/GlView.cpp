@@ -40,6 +40,8 @@
 // Try to make sure this runs a bit faster than the screen refresh rate of 60z (or 16.6 msec)
 #define SCREEN_FRAME_RATE 12 // That 12 msec or 83.3 frames per second
 
+#define REDRAW_COUNT ((m_cfg_openGlOptimise >= 2) ? 1 : 2) // there are two gl buffers but redrawing once is best (set 2 with buggy gl drivers)
+
 
 CGLView::CGLView(QtWindow* parent, CSettings* settings)
     : QGLWidget(parent)
@@ -57,7 +59,7 @@ CGLView::CGLView(QtWindow* parent, CSettings* settings)
     m_song = new CSong();
     m_score = new CScore(m_settings);
     m_displayUpdateTicks = 0;
-    m_cfg_openGlOptimise = true;
+    m_cfg_openGlOptimise = 0; // zero is no GlOptimise
     m_eventBits = 0;
     BENCHMARK_INIT();
 }
@@ -73,17 +75,12 @@ CGLView::~CGLView()
 
 QSize CGLView::minimumSizeHint() const
 {
-    return QSize(50, 50);
+    return QSize(200, 200);
 }
 
 QSize CGLView::sizeHint() const
 {
-    return QSize(200, 400); //fixme this does not work
-}
-
-void CGLView::initializeGL()
-{
-    qglClearColor(m_backgroundColour.dark());
+    return QSize(200, 800); //fixme this does not work
 }
 
 void CGLView::paintGL()
@@ -217,7 +214,7 @@ void CGLView::drawDisplayText()
 
     if (!m_settings->getWarningMessage().isEmpty())
     {
-        glColor3f(1.0,0.0,0.0);
+        glColor3f(1.0,0.2,0.0);
         renderText(30, y-4, 0, m_settings->getWarningMessage(), m_timeRatingFont);
         return;
     }
@@ -225,14 +222,14 @@ void CGLView::drawDisplayText()
     glColor3f(1.0,1.0,1.0);
 
     if (m_song->getPlayMode() != PB_PLAY_MODE_listen)
-        renderText(30, y-4,0 ,"Accuracy:", m_timeRatingFont);
+        renderText(30, y-4,0 ,tr("Accuracy:"), m_timeRatingFont);
 
     if (m_titleHeight < 45 )
         return;
 
     y = Cfg::getAppHeight() - m_titleHeight;
 
-    renderText(30, y+6, 0,"Song: " + m_song->getSongTitle(), m_timeRatingFont);
+    renderText(30, y+6, 0,tr("Song: ") + m_song->getSongTitle(), m_timeRatingFont);
     /*
     char buffer[100];
     sprintf(buffer, "Notes %d wrong %d Late %d Score %4.1f%%",
@@ -255,7 +252,7 @@ void CGLView::drawBarNumber()
     //CDraw::drColour (Cfg::noteColourDim());
     //glRectf(x+30+10, y-2, x + 80, y + 16);
     glColor3f(1.0,1.0,1.0);
-    renderText(x, y, 0,"Bar: " + QString::number(m_song->getBarNumber()), m_timeRatingFont);
+    renderText(x, y, 0, tr("Bar: ") + QString::number(m_song->getBarNumber()), m_timeRatingFont);
 }
 
 void CGLView::resizeGL(int width, int height)
@@ -272,7 +269,7 @@ void CGLView::resizeGL(int width, int height)
     int space = height - (heightAboveStave + heightBelowStave + minTitleHeight + minStaveGap);
     //m_titleHeight = qBound(minTitleHeight, minTitleHeight + space/2, 70);
     // staveGap = qBound(minStaveGap, minStaveGap+ space/2, static_cast<int>(CStavePos::staveHeight() * 3));
-    if (height < 450)  // So it works on an eeepc 701 (for Trev)
+    if (height < 430)  // So it works on an eeepc 701 (for Trev)
     {
         staveGap = minStaveGap;
         m_titleHeight = minTitleHeight;
@@ -311,7 +308,7 @@ void CGLView::mouseMoveEvent(QMouseEvent *event)
 {
 }
 
-void CGLView::init()
+void CGLView::initializeGL()
 {
     CColour colour = Cfg::backgroundColour();
     glClearColor (colour.red, colour.green, colour.blue, 0.0);
@@ -349,9 +346,17 @@ void CGLView::init()
     }
 
     setFocusPolicy(Qt::ClickFocus);
+    m_qtWindow->init();
+
+    m_score->init();
+
+    m_song->regenerateChordQueue();
+
 
     // increased the tick time for Midi handling
-    m_timer.start(4, this ); // was 12
+
+    m_timer.start(Cfg::tickRate, this );
+
     m_realtime.start();
 
     //startMediaTimer(12, this );
@@ -397,10 +402,11 @@ void CGLView::timerEvent(QTimerEvent *event)
         m_qtWindow->songEventUpdated(m_eventBits);
         m_eventBits = 0;
     }
-    if(m_cfg_openGlOptimise)
-        m_fullRedrawFlag = false;
-    else
+
+    if( m_cfg_openGlOptimise == 0 ) // zero is no GlOptimise
         m_fullRedrawFlag = true;
+    else
+        m_fullRedrawFlag = false;
 
     glDraw();
     //update();

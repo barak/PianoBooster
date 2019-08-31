@@ -35,14 +35,16 @@
 
 using namespace std;
 
-#define MAX_MIDI_CHANNELS   16
-#define MIDDLE_C            60
-#define MIDI_OCTAVE         12
-#define MIDI_BOTTOM_C       (MIDDLE_C - MIDI_OCTAVE*2)
-#define MIDI_TOP_C          (MIDDLE_C + MIDI_OCTAVE*2)
+#define MAX_MIDI_CHANNELS       16      // There are always at most 16 midi channels
+#define MIDDLE_C                60
+#define MIDI_OCTAVE             12
+#define MIDI_BOTTOM_C           (MIDDLE_C - MIDI_OCTAVE*2)
+#define MIDI_TOP_C              (MIDDLE_C + MIDI_OCTAVE*2)
+#define MIDI_DRUM_CHANNEL       (10-1)
 
-#define MAX_MIDI_NOTES      128
+#define MAX_MIDI_NOTES          128
 
+#define MAX_MIDI_TRACKS         32      // This will allow us to map midi track on to midi channels
 typedef unsigned char byte;
 
 #define arraySize(a) (sizeof(a)/sizeof(a[0]))     /* Returns (at compile time) the number of elements in an array */
@@ -67,6 +69,8 @@ void ppLogInfo(const char *msg, ...);
 void ppLogWarn(const char *msg, ...);
 void ppLogError(const char *msg, ...);
 void ppTiming(const char *msg, ...);
+void closeLogs();
+
 
 #define SPEED_ADJUST_FACTOR     1000
 #define deltaAdjust(delta) ((delta)/SPEED_ADJUST_FACTOR )
