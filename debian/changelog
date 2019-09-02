@@ -1,4 +1,4 @@
-pianobooster (0.6.8+git.903.56b485f-1) UNRELEASED; urgency=medium
+pianobooster (0.6.8+git20190826.56b485f-1) UNRELEASED; urgency=medium
 
   [ Alexey Loginov ]
   * Better installation by 'make install'
@@ -9,7 +9,8 @@ pianobooster (0.6.8+git.903.56b485f-1) UNRELEASED; urgency=medium
   [ Barak A. Pearlmutter ]
   * Adopt package
   * New upstream version, and updates thereof
-    - include all 903 post-0.6.8 upstream commits
+    - include all 903 post-0.6.8 upstream commits, up to and including
+      5a0ea7d1b37f1ea015217f1f7be82c3260aabf11 dated 2019-09-26
     - ported to qt5 (closes: #875089, #922813)
     - all quilt patches merged upstream
     - desktop file now upstream
@@ -27,8 +28,67 @@ pianobooster (0.6.8+git.903.56b485f-1) UNRELEASED; urgency=medium
     - misc simplifications and updates
     - menu file go bye bye (policy)
     - upstream now on github; adjust debian/watch uscan support file
+  * merge upstream debian packaging branch, up to and including commit
+    6255b5a40d6db26d1a8240c59aaac8a6ad8b4f3b dated 2019-06-19,
+    manually merging relevant mods
 
- -- Barak A. Pearlmutter <bap@debian.org>  Sun, 01 Sep 2019 19:47:00 +0100
+ -- Barak A. Pearlmutter <bap@debian.org>  Mon, 02 Sep 2019 11:45:09 +0100
+
+pianobooster (0.6.8~git20180511-1) UNRELEASED; urgency=medium
+
+  * New upstream (fork)
+  * Patch applied by upstream, removed from debian/patch
+  * New version ported to Qt5
+
+ -- Fabien Givors <fabien.givors@chezlefab.net>  Fri, 11 May 2018 17:06:29 +0200
+
+pianobooster (0.6.7~svn156-1librazik2) UNRELEASED; urgency=medium
+
+  * Reconstruction avec pbuilder pour LibraZiK-2.
+    - traduction de l'interface graphique en français.
+    - ajout de morceaux MIDI et de partitions en PDF.
+  * debian/patches/3000-traduction_interface_en_FR.patch :
+    - création de la rustine (avec dquilt).
+  * debian/patches/3001-LZK.patch :
+    - création de la rustine (avec dquilt).
+  * debian/series :
+    - ajout de la rustine "3000-traduction_interface_en_FR.patch" (avec dquilt).
+    - ajout de la rustine "3001-LZK.patch.
+  * debian/resources :
+    - extrait à partir de music/BoosterMusicBooks.zip .
+  * debian/pianobooster.install :
+    - ajout de l'installation des resources/* .
+  * debian/resources/include-binaries :
+    - ajout des resources/* .
+
+ -- Olivier Humbert <trebmuh@tuxfamily.org>  Fri, 12 Jan 2018 14:16:26 +0100
+
+pianobooster (0.6.7~svn156-1librazik1) UNRELEASED; urgency=medium
+
+  * Reconstruction avec pbuilder pour LibraZiK-2.
+    - ajout d'un élément de menu en français.
+  * debian/pianobooster.desktop :
+    - ajout d'un nom et d'un commentaire en français.
+  * debian/compat :
+    - passage de 9 à 10.
+  * debian/control :
+    - mise à jour de "Maintainer" et de "Uploaders" en conformité avec
+      "debian-policy 5.6.2 and 5.6.3".
+    - listes :
+      + style des listes : un élément par ligne.
+      + remise en ordre alphabétique des listes.
+    - dépendance de construction :
+      + debhelper : passage de (>= 9) à (>= 10).
+    - vérification de la validité du lien "Homepage". OK.
+    - description :
+      + ajout d'une mention au projet LibraZiK.
+      + ajout d'un lien vers la page de documentation.
+  * debian/copyright :
+    - ajout de moi-même à la section copyright de l'empaquetage debian.
+  * debian/menu :
+    - suppression du fichier pour suivre la décision du comité (#741573).
+
+ -- Olivier Humbert <trebmuh@tuxfamily.org>  Thu, 11 Jan 2018 16:59:47 +0100
 
 pianobooster (0.6.7~svn156-1) unstable; urgency=medium
 
