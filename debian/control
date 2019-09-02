@@ -11,7 +11,7 @@ Build-Depends: debhelper-compat (= 12), cmake,
  libasound2-dev, libjack-dev, librtmidi-dev, libfluidsynth-dev,
  mesa-common-dev,
  libftgl-dev, libglu1-mesa-dev,
- libqt5opengl5-dev, qtbase5-dev, qttools5-dev
+ libqt5opengl5-dev, qtbase5-dev, qttools5-dev,
  qt5-qmake, qtbase5-dev-tools, qtchooser
 Standards-Version: 4.4.0
 Homepage: https://github.com/captnfab/PianoBooster

@@ -31,14 +31,6 @@ override_dh_install:
 
 override_dh_installchangelogs:
 	dh_installchangelogs ReleaseNotes.txt
-		--debug-output \
-		-DCMAKE_BUILD_TYPE=Debug \
-		-DCMAKE_C_FLAGS:STRING="$(CFLAGS) $(CPPFLAGS)" \
-		-DCMAKE_CXX_FLAGS:STRING="$(CXXFLAGS) $(CPPFLAGS)" \
-		-DBUILD_STATIC:BOOL=ON \
-		-DCMAKE_SHARED_LINKER_FLAGS:STRING="$(LDFLAGS) $(LDFLAGS2)" \
-		-DCMAKE_EXE_LINKER_FLAGS:STRING="$(LDFLAGS) $(LDFLAGS2)"
-	touch $@
 
 # Not much benefit from compressing the little markdown documentation files.
 override_dh_compress:
