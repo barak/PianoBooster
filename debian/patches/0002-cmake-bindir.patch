@@ -5,14 +5,28 @@ Subject: cmake bindir
 Tell CMAKE to install binaries into ${CMAKE_INSTALL_BINDIR}) instead
 of ${prefix}/bin, so we can set it to install in /usr/games/.
 ---
- src/CMakeLists.txt | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ src/CMakeLists.txt | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
-index 6d95280..329b313 100644
+index 6d95280..93d9ea9 100644
 --- a/src/CMakeLists.txt
 +++ b/src/CMakeLists.txt
-@@ -253,7 +253,7 @@ endif()
+@@ -48,8 +48,13 @@ if (NOT DATA_DIR)
+ endif(NOT DATA_DIR)
+ add_compile_options("-DDATA_DIR=\"${DATA_DIR}\"")
+ 
++if (NOT CMAKE_INSTALL_BINDIR)
++  set(CMAKE_INSTALL_BINDIR "bin")
++endif(NOT CMAKE_INSTALL_BINDIR)
++
+ MESSAGE("PREFIX: " ${CMAKE_INSTALL_PREFIX})
+ MESSAGE("DATA_DIR: " ${DATA_DIR})
++MESSAGE("CMAKE_INSTALL_BINDIR: " ${CMAKE_INSTALL_BINDIR})
+ 
+ FIND_PACKAGE( OpenGL REQUIRED )
+ 
+@@ -253,7 +258,7 @@ endif()
  target_link_libraries (pianobooster Qt5::Widgets Qt5::Xml Qt5::OpenGL ${OPENGL_LIBRARIES} ${FTGL_LIBRARY} ${RTMIDI_LIBRARY} ${JACK_LIBRARY})
  
  INSTALL( FILES ../pianobooster.desktop DESTINATION share/applications )
@@ -21,7 +35,7 @@ index 6d95280..329b313 100644
  
  if(NOT NO_DOCS)
      INSTALL( FILES ../README.md DESTINATION share/doc/pianobooster/ )
-@@ -270,12 +270,12 @@ if(WITH_MAN)
+@@ -270,12 +275,12 @@ if(WITH_MAN)
  endif()
  
  if(WITH_TIMIDITY)
