@@ -20,7 +20,7 @@ Vcs-Browser: https://salsa.debian.org/games-team/pianobooster
 
 Package: pianobooster
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends},
  fluid-soundfont-gm, fluid-soundfont-gs, fluidsynth,
  fonts-dejavu-core,
  hicolor-icon-theme,
