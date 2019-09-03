@@ -2,7 +2,7 @@
 Name=Piano Booster (FluidSynth)
 Comment=A MIDI file player that teaches you how to play the piano, with FluidSynth sequencer
 GenericName=Piano Teacher
-Exec=pianobooster-fluidsynth
+Exec=pianobooster-fluidsynth %f
 Icon=pianobooster
 Terminal=false
 Type=Application
@@ -16,6 +16,7 @@ Name[gl]=Piano Booster (FluidSynth)
 Comment[gl]=Un reprodutor de ficheiros MIDI que lle ensina como tocar o piano, co secuenciador FluidSynth
 GenericName[gl]=Profesor de piano
 Name[hi]=पियानो बूस्टर (FluidSynth)
+Name[pl]=Piano Booster (FluidSynth)
 Comment[pl]=Odtwarzacz plików MIDI, który uczy, jak grać na pianinie dzięki sekwencerowi FluidSynth
 GenericName[pl]=Nauczyciel gry na pianinie
 Name[pt]=Piano Booster (FluidSynth)

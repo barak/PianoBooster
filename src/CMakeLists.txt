@@ -48,8 +48,13 @@ if (NOT DATA_DIR)
 endif(NOT DATA_DIR)
 add_compile_options("-DDATA_DIR=\"${DATA_DIR}\"")
 
+if (NOT CMAKE_INSTALL_BINDIR)
+  set(CMAKE_INSTALL_BINDIR "bin")
+endif(NOT CMAKE_INSTALL_BINDIR)
+
 MESSAGE("PREFIX: " ${CMAKE_INSTALL_PREFIX})
 MESSAGE("DATA_DIR: " ${DATA_DIR})
+MESSAGE("CMAKE_INSTALL_BINDIR: " ${CMAKE_INSTALL_BINDIR})
 
 FIND_PACKAGE( OpenGL REQUIRED )
 
@@ -253,11 +258,10 @@ endif()
 target_link_libraries (pianobooster Qt5::Widgets Qt5::Xml Qt5::OpenGL ${OPENGL_LIBRARIES} ${FTGL_LIBRARY} ${RTMIDI_LIBRARY} ${JACK_LIBRARY})
 
 INSTALL( FILES ../pianobooster.desktop DESTINATION share/applications )
-INSTALL(TARGETS pianobooster RUNTIME DESTINATION bin)
+INSTALL(TARGETS pianobooster RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 if(NOT NO_DOCS)
     INSTALL( FILES ../README.md DESTINATION share/doc/pianobooster/ )
-    INSTALL( FILES ../ReleaseNotes.txt DESTINATION share/doc/pianobooster/ )
     INSTALL( FILES ../doc/faq.md DESTINATION share/doc/pianobooster/ )
 endif()
 
@@ -265,17 +269,21 @@ if(NOT NO_LICENSE)
     INSTALL( FILES ../license.txt DESTINATION share/licenses/pianobooster/ )
 endif()
 
+if(NOT NO_CHANGELOG)
+    INSTALL( FILES ../Changelog.txt DESTINATION share/doc/pianobooster/ )
+endif()
+
 if(WITH_MAN)
     INSTALL( FILES ../pianobooster.6  DESTINATION share/man/man6/ )
 endif()
 
 if(WITH_TIMIDITY)
-    INSTALL( FILES ../tools/timidity/pianobooster-timidity PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ DESTINATION bin )
+    INSTALL( FILES ../tools/timidity/pianobooster-timidity PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ DESTINATION ${CMAKE_INSTALL_BINDIR} )
     INSTALL( FILES ../tools/timidity/pianobooster-timidity.desktop DESTINATION share/applications )
 endif()
 
 if(WITH_FLUIDSYNTH)
-    INSTALL( FILES ../tools/fluidsynth/pianobooster-fluidsynth PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ DESTINATION bin )
+    INSTALL( FILES ../tools/fluidsynth/pianobooster-fluidsynth PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ DESTINATION ${CMAKE_INSTALL_BINDIR} )
     INSTALL( FILES ../tools/fluidsynth/pianobooster-fluidsynth.desktop DESTINATION share/applications )
 endif()
 

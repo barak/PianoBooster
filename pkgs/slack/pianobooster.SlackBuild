@@ -9,6 +9,7 @@
 # Licensed under the WTFPL. See http://www.wtfpl.net/txt/copying/ for details.
 
 PRGNAM=pianobooster
+ORIGNAM=PianoBooster
 VERSION=${VERSION:-0.7.0}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}
@@ -46,7 +47,8 @@ rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 rm -rf $PRGNAM-src-$VERSION
-tar xvf $CWD/$PRGNAM-$VERSION.tar.gz
+tar xvf $CWD/$ORIGNAM-$VERSION.tar.gz
+mv -f "$ORIGNAM-$VERSION" "$PRGNAM-$VERSION"
 cd $PRGNAM-$VERSION
 chown -R root:root .
 find -L . \
@@ -62,6 +64,7 @@ cmake \
     -DUSE_SYSTEM_FONT=ON \
     -DNO_DOCS=ON \
     -DNO_LICENSE=ON \
+    -DNO_CHANGELOG=ON \
     -DINSTALL_ALL_LANGS=ON \
     -DUSE_SYSTEM_RTMIDI=OFF \
     -DWITH_MAN=ON \
@@ -76,7 +79,7 @@ make install/strip DESTDIR=$PKG
 
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
 cp -a \
-  README.md ReleaseNotes.txt doc/faq.md license.txt \
+  README.md Changelog.txt doc/faq.md license.txt \
   $PKG/usr/doc/$PRGNAM-$VERSION
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 
