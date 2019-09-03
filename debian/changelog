@@ -3,8 +3,9 @@ pianobooster (0.7.0-1) unstable; urgency=medium
   * New upstream version
   * Remove upstreamed quilt patches
   * Tweak debian/rules to take advantage of upstream build enhancements
+  * Stop incorrectly installing incorrect albeit scalable icon
 
- -- Barak A. Pearlmutter <bap@debian.org>  Tue, 03 Sep 2019 11:28:36 +0100
+ -- Barak A. Pearlmutter <bap@debian.org>  Tue, 03 Sep 2019 11:44:51 +0100
 
 pianobooster (0.6.8+git20190826.56b485f-1) unstable; urgency=medium
 
