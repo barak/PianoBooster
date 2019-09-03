@@ -18,19 +18,9 @@ override_dh_auto_configure:
 		-DWITH_FLUIDSYNTH=ON \
 		-DWITH_TIMIDITY=ON \
 		-DUSE_FLUIDSYNTH=ON \
-		-DUSE_TIMIDITY=ON
-
-override_dh_install:
-	dh_install
-	@echo Remove stray license file installed by upstream
-	-rm --verbose debian/pianobooster/usr/share/licenses/pianobooster/license.txt
-	-rmdir --verbose debian/pianobooster/usr/share/licenses/pianobooster
-	-rmdir --verbose debian/pianobooster/usr/share/licenses
-	@echo Remove ReleaseNotes.txt which is actually the upstream changelog
-	-rm debian/pianobooster/usr/share/doc/pianobooster/ReleaseNotes.txt
-
-override_dh_installchangelogs:
-	dh_installchangelogs ReleaseNotes.txt
+		-DUSE_TIMIDITY=ON \
+		-DNO_LICENSE=ON \
+		-DNO_CHANGELOG=ON
 
 # Not much benefit from compressing the little markdown documentation files.
 override_dh_compress:
