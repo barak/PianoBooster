@@ -6,13 +6,23 @@ Uploaders:
  Miriam Ruiz <miriam@debian.org>,
  Daniel Gimpelevich <daniel@gimpelevich.san-francisco.ca.us>,
  Barak A. Pearlmutter <bap@debian.org>
-Build-Depends: debhelper-compat (= 12), cmake,
+Build-Depends:
+ cmake,
+ debhelper-compat (= 12),
  hicolor-icon-theme,
- libasound2-dev, libjack-dev, librtmidi-dev, libfluidsynth-dev,
+ libasound2-dev,
+ libfluidsynth-dev,
+ libftgl-dev,
+ libglu1-mesa-dev,
+ libjack-dev,
+ libqt5opengl5-dev,
+ librtmidi-dev,
  mesa-common-dev,
- libftgl-dev, libglu1-mesa-dev,
- libqt5opengl5-dev, qtbase5-dev, qttools5-dev,
- qt5-qmake, qtbase5-dev-tools, qtchooser
+ qt5-qmake,
+ qtbase5-dev,
+ qtbase5-dev-tools,
+ qtchooser,
+ qttools5-dev
 Standards-Version: 4.4.0
 Homepage: https://github.com/captnfab/PianoBooster
 Vcs-Git: https://salsa.debian.org/games-team/pianobooster.git
@@ -20,12 +30,16 @@ Vcs-Browser: https://salsa.debian.org/games-team/pianobooster
 
 Package: pianobooster
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends},
- fluid-soundfont-gm, fluid-soundfont-gs, fluidsynth,
+Depends:
+ fluid-soundfont-gm,
+ fluid-soundfont-gs,
+ fluidsynth,
  fonts-dejavu-core,
  hicolor-icon-theme,
  timidity,
- unzip
+ unzip,
+ ${misc:Depends},
+ ${shlibs:Depends}
 Recommends:
  jackd2,
  qttranslations5-l10n
