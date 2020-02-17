@@ -9,19 +9,16 @@ Uploaders:
 Build-Depends:
  cmake,
  debhelper-compat (= 12),
- hicolor-icon-theme,
  libasound2-dev,
  libfluidsynth-dev,
  libftgl-dev,
+ libgl-dev,
  libglu1-mesa-dev,
  libjack-dev,
  libqt5opengl5-dev,
  librtmidi-dev,
- mesa-common-dev,
- qt5-qmake,
  qtbase5-dev,
  qtbase5-dev-tools,
- qtchooser,
  qttools5-dev
 Standards-Version: 4.4.0
 Homepage: https://github.com/captnfab/PianoBooster
