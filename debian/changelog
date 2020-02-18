@@ -1,3 +1,23 @@
+pianobooster (0.7.2-1) UNRELEASED; urgency=medium
+
+  [ Juhani Numminen ]
+  * New upstream release.
+  * The software does not use fluidsynth or jack by default anymore.
+  * Some cmake options were removed upstream (see BUILD.md).
+  * Only install translations deemed complete enough by upstream devs.
+  * Drop unnecessary Build-Depends hicolor-icon-theme, libfluidsynth-dev,
+    libjack-dev, qt5-qmake, qtchooser.
+  * Change mesa-common-dev to libgl-dev since GL/gl.h has moved.
+  * Add Rules-Requires-Root: no
+  * Bump Standards-Version to 4.5.0. No changes needed.
+  * Remove refresh-tr from d/rules. It was first added back when PianoBooster's
+    i18n was a Debian-specific modification.
+
+  [ Barak A. Pearlmutter ]
+  * explicitly tell qtchooser to use qt5
+
+ -- Juhani Numminen <juhaninumminen0@gmail.com>  Tue, 18 Feb 2020 09:40:33 +0200
+
 pianobooster (0.7.0-1) unstable; urgency=medium
 
   * New upstream version
