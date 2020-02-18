@@ -1,4 +1,4 @@
-pianobooster (0.7.2-1) UNRELEASED; urgency=medium
+pianobooster (0.7.2-1) unstable; urgency=medium
 
   [ Juhani Numminen ]
   * New upstream release.
@@ -16,7 +16,7 @@ pianobooster (0.7.2-1) UNRELEASED; urgency=medium
   [ Barak A. Pearlmutter ]
   * explicitly tell qtchooser to use qt5
 
- -- Juhani Numminen <juhaninumminen0@gmail.com>  Tue, 18 Feb 2020 09:40:33 +0200
+ -- Barak A. Pearlmutter <bap@debian.org>  Tue, 18 Feb 2020 10:45:28 +0000
 
 pianobooster (0.7.0-1) unstable; urgency=medium
 
