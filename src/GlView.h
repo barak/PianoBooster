@@ -72,7 +72,7 @@ private:
     void updateMidiTask();
 
 
-    QColor m_backgroundColour;
+    QColor m_backgroundColor;
     QtWindow* m_qtWindow;  // The parent Window
     CSettings* m_settings;
     CSong* m_song;
@@ -83,6 +83,7 @@ private:
     CRating* m_rating;
     QFont m_timeSigFont;
     QFont m_timeRatingFont;
+    // TODO remove these as no longer required
     bool m_fullRedrawFlag;
     int m_forcefullRedraw;
     int m_forceRatingRedraw;

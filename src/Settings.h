@@ -47,24 +47,35 @@ public:
 
     void init(CSong* song, GuiSidePanel* sidePanel, GuiTopBar* topBar);
 
-    /// returns true if the users wants to see the note names
+    /// returns true if the user wants to see the note names
     bool isNoteNamesEnabled() { return m_noteNamesEnabled; }
     bool displayCourtesyAccidentals() { return CNotation::displayCourtesyAccidentals(); }
 
     bool isTutorPagesEnabled() { return m_tutorPagesEnabled; }
     bool isFollowThroughErrorsEnabled() { return m_followThroughErrorsEnabled; }
+    bool isColoredNotesEnabled() { return m_coloredNotes; }
 
     /// Saves in the .ini file whether the user wants to show the note names
     void setNoteNamesEnabled(bool value);
+    void setColoredNotes(bool value);
     void setTutorPagesEnabled(bool value);
     void setFollowThroughErrorsEnabled(bool value);
 
     void setCourtesyAccidentals(bool value);
     void setAdvancedMode(bool value) { m_advancedMode = value;}
 
-    /// returns true if the users wants to see the note names
+    /// returns true if the user wants to see the note names
     bool showNoteNames(){
         return m_noteNamesEnabled;
+    }
+
+    /// returns true if the user wants to see color-coded notes
+    bool coloredNotes(){
+        return m_coloredNotes;
+    }
+
+    void coloredNotes(bool b){
+        m_coloredNotes = b;
     }
 
     /// returns true if the user wants Follow Skill to ignore errors
@@ -149,6 +160,7 @@ private:
     GuiSidePanel* m_guiSidePanel;
     GuiTopBar* m_guiTopBar;
     bool m_noteNamesEnabled;
+    bool m_coloredNotes;
     bool m_tutorPagesEnabled;
     bool m_advancedMode;
     bool m_followThroughErrorsEnabled;
