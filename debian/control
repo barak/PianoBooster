@@ -10,11 +10,9 @@ Build-Depends:
  cmake,
  debhelper-compat (= 12),
  libasound2-dev,
- libfluidsynth-dev,
  libftgl-dev,
  libgl-dev,
  libglu1-mesa-dev,
- libjack-dev,
  libqt5opengl5-dev,
  librtmidi-dev,
  qtbase5-dev,
@@ -31,7 +29,6 @@ Architecture: any
 Depends:
  fluid-soundfont-gm,
  fluid-soundfont-gs,
- fluidsynth,
  fonts-dejavu-core,
  hicolor-icon-theme,
  timidity,
@@ -39,7 +36,6 @@ Depends:
  ${misc:Depends},
  ${shlibs:Depends}
 Recommends:
- jackd2,
  qttranslations5-l10n
 Description: Learn the piano just by playing a game
  A MIDI file player/game that displays the musical notes AND teaches you how
