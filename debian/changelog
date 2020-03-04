@@ -4,6 +4,7 @@ pianobooster (0.7.2b-1) UNRELEASED; urgency=medium
   * Set upstream metadata fields: Repository.
   * Remove obsolete field Name from debian/upstream/metadata (already
     present in machine-readable debian/copyright).
+  * Fix day-of-week for changelog entry 0.6.7~svn156-0ppa2~trusty.
 
  -- Barak A. Pearlmutter <bap@debian.org>  Wed, 04 Mar 2020 12:26:02 +0000
 
@@ -149,7 +150,7 @@ pianobooster (0.6.7~svn156-0ppa2~trusty) trusty; urgency=medium
   * Updated manpage
   * Added paths.patch and armel.patch
 
- -- Daniel Gimpelevich <daniel@gimpelevich.san-francisco.ca.us>  Sat, 23 Oct 2016 04:19:54 -0700
+ -- Daniel Gimpelevich <daniel@gimpelevich.san-francisco.ca.us>  Sun, 23 Oct 2016 04:19:54 -0700
 
 pianobooster (0.6.4.0-1) UNRELEASED; urgency=medium
 
