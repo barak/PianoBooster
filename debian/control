@@ -1,14 +1,14 @@
 Source: pianobooster
 Section: games
 Priority: optional
-Maintainer: Debian Games Team <pkg-games-devel@lists.alioth.debian.org>
+Maintainer: Debian Games Team <pkg-games-devel@alioth-lists.debian.net>
 Uploaders:
  Miriam Ruiz <miriam@debian.org>,
  Daniel Gimpelevich <daniel@gimpelevich.san-francisco.ca.us>,
  Barak A. Pearlmutter <bap@debian.org>
 Build-Depends:
  cmake,
- debhelper-compat (= 12),
+ debhelper-compat (= 13),
  libasound2-dev,
  libftgl-dev,
  libgl-dev,
