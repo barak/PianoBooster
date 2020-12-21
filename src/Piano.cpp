@@ -38,7 +38,6 @@
 
 static const float minNameGap = 14.0;
 
-
 void CPiano::spaceNoteBunch(unsigned int bottomIndex, unsigned int topIndex)
 {
     unsigned int midPoint;
@@ -60,7 +59,7 @@ void CPiano::spaceNoteBunch(unsigned int bottomIndex, unsigned int topIndex)
         if  (gap < minNameGap)
         {
             gap = (minNameGap - gap)/2;
-            m_noteNameList[midPoint].posY += gap; // then move the middle two notes apart by the same amout
+            m_noteNameList[midPoint].posY += gap; // then move the middle two notes apart by the same amount
             m_noteNameList[midPoint-1].posY -= gap;
         }
     }
@@ -109,7 +108,6 @@ void CPiano::drawPianoInputLines(CChord* chord, CColor color, int lineLength)
     drColor(color);
 
     CStavePos stavePos;
-
 
     for ( i = 0; i < chord->length(); i++)
     {
@@ -232,7 +230,6 @@ void CPiano::addPianistNote(whichPart_t part, CMidiEvent midiNote, bool good)
         m_goodChord.addNote(part, note);
     else
         m_badChord.addNote(part, note);
-
 
     posY = stavePos.getPosYAccidental();
     addNoteNameItem(posY, note, 0);
