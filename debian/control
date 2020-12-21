@@ -10,6 +10,7 @@ Build-Depends:
  cmake,
  debhelper-compat (= 13),
  libasound2-dev,
+ libfluidsynth-dev,
  libftgl-dev,
  libgl-dev,
  libglu1-mesa-dev,

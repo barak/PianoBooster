@@ -12,6 +12,7 @@ export QT_SELECT = 5
 override_dh_auto_configure:
 	dh_auto_configure -- \
 		-DCMAKE_INSTALL_BINDIR=/usr/games \
+		-DWITH_INTERNAL_FLUIDSYNTH=OFF \
 		-DUSE_SYSTEM_FONT=ON \
 		-DWITH_MAN=ON \
 		-DNO_LICENSE=ON \
